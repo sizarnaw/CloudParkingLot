@@ -1,14 +1,17 @@
-#!/bin/bash
-
 # debug
 # set -o xtrace
 
-KEY_NAME="cloud-course-`date +'%N'`"
+KEY_NAME="cloud-parking-lot-`date +'%N'`"
 KEY_PEM="$KEY_NAME.pem"
+
+# echo "create key pair $KEY_PEM to connect to instances and save locally"
+# aws ec2 create-key-pair --key-name $KEY_NAME \
+#     | jq -r ".KeyMaterial" > $KEY_PEM
 
 echo "create key pair $KEY_PEM to connect to instances and save locally"
 aws ec2 create-key-pair --key-name $KEY_NAME \
     | jq -r ".KeyMaterial" > $KEY_PEM
+
 
 # secure the key pair
 chmod 400 $KEY_PEM
@@ -18,12 +21,12 @@ SEC_GRP="my-sg-`date +'%N'`"
 echo "setup firewall $SEC_GRP"
 aws ec2 create-security-group   \
     --group-name $SEC_GRP       \
-    --description "Access my instances"
-
+    --description "Access my instances" 
 
 # figure out my ip
 MY_IP=$(curl ipinfo.io/ip)
 echo "My IP: $MY_IP"
+
 
 echo "setup rule allowing SSH access to $MY_IP only"
 aws ec2 authorize-security-group-ingress        \
@@ -35,27 +38,15 @@ aws ec2 authorize-security-group-ingress        \
     --group-name $SEC_GRP --port 8000 --protocol tcp \
     --cidr 0.0.0.0/0
 
-UBUNTU_20_04_AMI="ami-03238ca76a3266a07"
-
-
-USER_DATA=$(base64 <<EOF
-#!/bin/bash
-sudo yum install -y python3-pip git
-pip3 install flask
-git clone https://github.com/sizarnaw/CloudParkingLot.git /tmp/ParkingLotSystem
-cd /tmp/ParkingLotSystem
-python3 main.py --host 0.0.0.0  &>/dev/null 
-EOF
-)
+AMAZON_LINUX_2024="ami-0bb84b8ffd87024d8"
 
 echo "Creating Ubuntu 20.04 instance..."
 RUN_INSTANCES=$(aws ec2 run-instances   \
-    --image-id $UBUNTU_20_04_AMI        \
-    --instance-type t3.micro            \
+    --image-id $AMAZON_LINUX_2024        \
+    --instance-type t2.micro            \
     --key-name $KEY_NAME                \
-    --security-groups $SEC_GRP          \
-    --user-data $USER_DATA)
-
+    --security-groups $SEC_GRP)
+    
 
 INSTANCE_ID=$(echo $RUN_INSTANCES | jq -r '.Instances[0].InstanceId')
 
@@ -66,17 +57,25 @@ PUBLIC_IP=$(aws ec2 describe-instances  --instance-ids $INSTANCE_ID |
     jq -r '.Reservations[0].Instances[0].PublicIpAddress'
 )
 
-
 echo "New instance $INSTANCE_ID @ $PUBLIC_IP"
 
 echo "deploying code to production"
-scp -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" main.py ubuntu@$PUBLIC_IP:/home/ubuntu/
+scp -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" main.py ec2-user@$PUBLIC_IP:/home/ec2-user
 
 echo "setup production environment"
-ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=10" ubuntu@$PUBLIC_IP <<EOF
-    sudo apt update
-    sudo apt install python3-flask -y
-    # run app
+ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=10" ec2-user@$PUBLIC_IP <<EOF
+    sudo yum update
+    sudo yum install python3-flask -y git
+    # Check if the repository already exists
+    if [ -d "/home/ec2-user/parkinglot" ]; then
+        echo "Repository exists. Pulling the latest changes..."
+        cd /home/ec2-user/CloudParkingLot
+        git pull
+    else
+        echo "Cloning the repository..."
+        git clone https://github.com/sizarnaw/CloudParkingLot.git /home/ec2-user/cloudparkinglot
+        cd /home/ec2-user/CloudParkingLot
+
     nohup flask run --host 0.0.0.0  &>/dev/null &
     exit
 EOF
@@ -90,7 +89,6 @@ echo "Example for insert a car: curl -X POST http://$PUBLIC_IP:8000/entry?plate=
 echo
 curl -X POST "http://$PUBLIC_IP:8000/entry?plate=123-123-123&parkingLot=382"
 echo
-echo "Example for exit that car curl -X POST http://$PUBLIC_IP:8000/exit?ticketId=0"
+echo "Example for exit that car curl -X POST http://$PUBLIC_IP:8000/exit?ticketId=7360"
 echo
 curl -X POST "http://$PUBLIC_IP:8000/exit?ticketId=0"
-
