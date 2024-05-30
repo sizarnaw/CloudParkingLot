@@ -1,19 +1,13 @@
 # debug
 # set -o xtrace
 
-KEY_NAME="cloud-parking-lot-`date +'%N'`"
+KEY_NAME="cloud-1parking-lot-`date +'%N'`"
 KEY_PEM="$KEY_NAME.pem"
-
-# echo "create key pair $KEY_PEM to connect to instances and save locally"
-# aws ec2 create-key-pair --key-name $KEY_NAME \
-#     | jq -r ".KeyMaterial" > $KEY_PEM
 
 echo "create key pair $KEY_PEM to connect to instances and save locally"
 aws ec2 create-key-pair --key-name $KEY_NAME \
     | jq -r ".KeyMaterial" > $KEY_PEM
 
-
-# secure the key pair
 chmod 400 $KEY_PEM
 
 SEC_GRP="my-sg-`date +'%N'`"
@@ -23,7 +17,7 @@ aws ec2 create-security-group   \
     --group-name $SEC_GRP       \
     --description "Access my instances" 
 
-# figure out my ip
+
 MY_IP=$(curl ipinfo.io/ip)
 echo "My IP: $MY_IP"
 
@@ -67,16 +61,16 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=10" ec2-use
     sudo yum update
     sudo yum install python3-flask -y git
     # Check if the repository already exists
-    if [ -d "/home/ec2-user/parkinglot" ]; then
+    if [ -d "/home/ec2-user/CloudParkingLot" ]; then
         echo "Repository exists. Pulling the latest changes..."
         cd /home/ec2-user/CloudParkingLot
         git pull
     else
         echo "Cloning the repository..."
-        git clone https://github.com/sizarnaw/CloudParkingLot.git /home/ec2-user/cloudparkinglot
+        git clone https://github.com/sizarnaw/CloudParkingLot.git /home/ec2-user/CloudParkingLot
         cd /home/ec2-user/CloudParkingLot
 
-    nohup flask run --host 0.0.0.0  &>/dev/null &
+    nohup flask run --host 0.0.0.0 --port 8000  &>/dev/null &
     exit
 EOF
 
@@ -85,7 +79,7 @@ echo "test that it all worked"
 echo
 echo "This is the IP of the Current instance: $PUBLIC_IP"
 echo
-echo "Example for insert a car: curl -X POST http://$PUBLIC_IP:8000/entry?plate=123-123-123&parkingLot=382"
+echo "Example for insert a car: curl -X POST http://3.84.242.93:8000/entry?plate=123-123-123&parkingLot=382"
 echo
 curl -X POST "http://$PUBLIC_IP:8000/entry?plate=123-123-123&parkingLot=382"
 echo
