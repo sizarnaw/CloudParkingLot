@@ -1,7 +1,7 @@
 # debug
 # set -o xtrace
 
-KEY_NAME="cloud-5parking-lot-`date +'%N'`"
+KEY_NAME="cloud-parking-lot-`date +'%N'`"
 KEY_PEM="$KEY_NAME.pem"
 
 echo "create key pair $KEY_PEM to connect to instances and save locally"
@@ -69,8 +69,9 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=10" ec2-use
         echo "Cloning the repository..."s
         git clone https://github.com/sizarnaw/CloudParkingLot /home/ec2-user/CloudParkingLot
         cd /home/ec2-user/CloudParkingLot
+    fi
 
-    nohup flask run --host 0.0.0.0 --port 8000  &>/dev/null &
+    nohup flask run --host 0.0.0.0 &>/dev/null &
     exit
 EOF
 
@@ -79,7 +80,7 @@ echo "test that it all worked"
 echo
 echo "This is the IP of the Current instance: $PUBLIC_IP"
 echo
-echo "Example for insert a car: curl -X POST http://$PUBLIC_IP/entry?plate=123-123-123&parkingLot=382"
+echo "Example for insert a car: curl -X POST http://$PUBLIC_IP:8000/entry?plate=123-123-123&parkingLot=382"
 echo
 curl -X POST "http://$PUBLIC_IP:8000/entry?plate=123-123-123&parkingLot=382"
 echo

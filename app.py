@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from datetime import datetime, timedelta
+from datetime import datetime
 import random
 
 app = Flask(__name__)
@@ -7,13 +7,14 @@ app = Flask(__name__)
 parking_entries = []
 
 @app.route('/entry', methods=['POST'])
-def recordentry():
+def record_entry():
     plate = request.args.get('plate')
     parking_lot = request.args.get('parkingLot')
     entry_time = datetime.now()
     ticket_id = random.randint(1000, 9999)
     entry = {'ticketId': ticket_id, 'plate': plate, 'parkingLot': parking_lot, 'entryTime': entry_time}
     parking_entries.append(entry)
+    
     return jsonify({'ticketId': ticket_id})
 
 @app.route('/exit', methods=['POST'])
