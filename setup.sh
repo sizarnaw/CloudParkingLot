@@ -1,7 +1,7 @@
 # debug
 # set -o xtrace
 
-KEY_NAME="cloud-1parking-lot-`date +'%N'`"
+KEY_NAME="cloud-3parking-lot-`date +'%N'`"
 KEY_PEM="$KEY_NAME.pem"
 
 echo "create key pair $KEY_PEM to connect to instances and save locally"
@@ -79,7 +79,7 @@ echo "test that it all worked"
 echo
 echo "This is the IP of the Current instance: $PUBLIC_IP"
 echo
-echo "Example for insert a car: curl -X POST http://3.84.242.93:8000/entry?plate=123-123-123&parkingLot=382"
+echo "Example for insert a car: curl -X POST http://$PUBLIC_IP/entry?plate=123-123-123&parkingLot=382"
 echo
 curl -X POST "http://$PUBLIC_IP:8000/entry?plate=123-123-123&parkingLot=382"
 echo
