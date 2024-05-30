@@ -1,7 +1,7 @@
 # debug
 # set -o xtrace
 
-KEY_NAME="cloud-3parking-lot-`date +'%N'`"
+KEY_NAME="cloud-5parking-lot-`date +'%N'`"
 KEY_PEM="$KEY_NAME.pem"
 
 echo "create key pair $KEY_PEM to connect to instances and save locally"
@@ -54,11 +54,11 @@ PUBLIC_IP=$(aws ec2 describe-instances  --instance-ids $INSTANCE_ID |
 echo "New instance $INSTANCE_ID @ $PUBLIC_IP"
 
 echo "deploying code to production"
-scp -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" main.py ec2-user@$PUBLIC_IP:/home/ec2-user
+scp -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" setup.py ec2-user@$PUBLIC_IP:/home/ec2-user
 
 echo "setup production environment"
 ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=10" ec2-user@$PUBLIC_IP <<EOF
-    sudo yum update
+    sudo yum update -y
     sudo yum install python3-flask -y git
     # Check if the repository already exists
     if [ -d "/home/ec2-user/CloudParkingLot" ]; then
@@ -66,8 +66,8 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=10" ec2-use
         cd /home/ec2-user/CloudParkingLot
         git pull
     else
-        echo "Cloning the repository..."
-        git clone https://github.com/sizarnaw/CloudParkingLot.git /home/ec2-user/CloudParkingLot
+        echo "Cloning the repository..."s
+        git clone https://github.com/sizarnaw/CloudParkingLot /home/ec2-user/CloudParkingLot
         cd /home/ec2-user/CloudParkingLot
 
     nohup flask run --host 0.0.0.0 --port 8000  &>/dev/null &
