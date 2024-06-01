@@ -6,20 +6,16 @@ import random
 app = Flask(__name__)
 
 parking_entries = []
-# id_taken = []
 
 @app.route('/entry', methods=['POST'])
 def record_entry():
     plate = request.args.get('plate')
     spot = request.args.get('parkingLot')
     entry_time = datetime.now()
-    ticket_id = random.randint(10, 99999)
-    print(f"ticket_id-{ticket_id}, parking_entries-{parking_entries}")
-    while ticket_id in parking_entries['ticketId']:
-        ticket_id = random.randint(10, 99999)
+    ticket_id = random.randint(1000, 9999)
     entry = {'ticketId': ticket_id, 'plate': plate, 'parkingLot': spot, 'entryTime': entry_time}
     parking_entries.append(entry)
-    print(parking_entries['ticketId'])
+    
     return jsonify({'ticketId': ticket_id})
 
 @app.route('/exit', methods=['POST'])
