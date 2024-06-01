@@ -40,6 +40,9 @@ The system offers two primary HTTP endpoints:
 ### Prerequisites
 - AWS CLI configured with your credentials.
 - Git installed on your local machine.
+- Please ensure the you Have AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
+- export AWS_ACCESS_KEY_ID = ACESS_KEY
+- export AWS_SECRET_ACCESS_KEY=YOUR_SECRET
 
 ### Deployment Steps
 1. **Clone the Repository:**
