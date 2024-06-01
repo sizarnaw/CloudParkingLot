@@ -18,6 +18,7 @@ def record_entry():
         ticket_id = random.randint(1000, 9999)
 
     entry = {'ticketId': ticket_id, 'plate': plate, 'parkingLot': spot, 'entryTime': entry_time}
+    ids_taken.appent(ticket_id)
     parking_entries.append(entry)
     
     return jsonify({'ticketId': ticket_id})
