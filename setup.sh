@@ -1,7 +1,7 @@
 # debug
 # set -o xtrace
 
-KEY_NAME="cloud-parking-lot-`date +'%N'`"
+KEY_NAME="cloud-parking-1lot-`date +'%N'`"
 KEY_PEM="$KEY_NAME.pem"
 
 echo "create key pair $KEY_PEM to connect to instances and save locally"
@@ -53,9 +53,6 @@ PUBLIC_IP=$(aws ec2 describe-instances  --instance-ids $INSTANCE_ID |
 
 echo "New instance $INSTANCE_ID @ $PUBLIC_IP"
 
-echo "deploying code to production"
-scp -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" setup.py ec2-user@$PUBLIC_IP:/home/ec2-user
-
 echo "setup production environment"
 ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=10" ec2-user@$PUBLIC_IP <<EOF
     sudo yum update -y
@@ -74,16 +71,3 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=10" ec2-use
     nohup flask run --host 0.0.0.0 &>/dev/null &
     exit
 EOF
-
-echo
-echo "test that it all worked"
-echo
-echo "This is the IP of the Current instance: $PUBLIC_IP"
-echo
-echo "Example for insert a car: curl -X POST http://$PUBLIC_IP:8000/entry?plate=123-123-123&parkingLot=382"
-echo
-curl -X POST "http://$PUBLIC_IP:8000/entry?plate=123-123-123&parkingLot=382"
-echo
-echo "Example for exit that car curl -X POST http://$PUBLIC_IP:8000/exit?ticketId=7360"
-echo
-curl -X POST "http://$PUBLIC_IP:8000/exit?ticketId=0"
