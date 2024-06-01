@@ -6,25 +6,21 @@ import random
 app = Flask(__name__)
 
 parking_entries = []
-
+ids_taken = []
 
 @app.route('/entry', methods=['POST'])
 def record_entry():
     plate = request.args.get('plate')
     spot = request.args.get('parkingLot')
     entry_time = datetime.now()
-    ticket_id = random.randint(10, 99999)
-    finished = False
-    while not finished:
-        if ticket_id not in parking_entries['ticketId']:
-            entry = {'ticketId': ticket_id, 'plate': plate, 'parkingLot': spot, 'entryTime': entry_time}
-            parking_entries.append(entry)
-            finished = True
-        else:
-            ticket_id = random.randint(10, 99999)
+    ticket_id = random.randint(1000, 9999)
+    while ticket_id in ids_taken:
+        ticket_id = random.randint(1000, 9999)
 
+    entry = {'ticketId': ticket_id, 'plate': plate, 'parkingLot': spot, 'entryTime': entry_time}
+    parking_entries.append(entry)
+    
     return jsonify({'ticketId': ticket_id})
-
 
 @app.route('/exit', methods=['POST'])
 def record_exit():
@@ -45,7 +41,6 @@ def record_exit():
         'parkedTime': str(parked_time),
         'charge': f'${charge}'
     })
-
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port='8000')
