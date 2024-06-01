@@ -14,6 +14,7 @@ def record_entry():
     spot = request.args.get('parkingLot')
     entry_time = datetime.now()
     ticket_id = random.randint(10, 99999)
+    print(f"ticket_id-{ticket_id}, id_taken-{id_taken},parking_entries-{parking_entries}")
     while ticket_id in id_taken:
         ticket_id = random.randint(10, 99999)
     entry = {'ticketId': ticket_id, 'plate': plate, 'parkingLot': spot, 'entryTime': entry_time}
