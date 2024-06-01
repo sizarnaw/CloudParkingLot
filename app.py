@@ -7,12 +7,18 @@ app = Flask(__name__)
 
 parking_entries = []
 
+def generate_unique_ticket_id():
+    while True:
+        ticket_id = random.randint(1000, 9999)
+        if not any(entry['ticketId'] == ticket_id for entry in parking_entries):
+            return ticket_id
+
 @app.route('/entry', methods=['POST'])
 def record_entry():
     plate = request.args.get('plate')
     spot = request.args.get('parkingLot')
     entry_time = datetime.now()
-    ticket_id = random.randint(1000, 9999)
+    ticket_id = generate_unique_ticket_id()
     entry = {'ticketId': ticket_id, 'plate': plate, 'parkingLot': spot, 'entryTime': entry_time}
     parking_entries.append(entry)
     

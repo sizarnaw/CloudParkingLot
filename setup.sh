@@ -1,7 +1,7 @@
 # debug
 # set -o xtrace
 
-KEY_NAME="cloud-parking-lot2-`date +'%N'`"
+KEY_NAME="cloud-parking-lot7-`date +'%N'`"
 KEY_PEM="$KEY_NAME.pem"
 
 echo "create key pair $KEY_PEM to connect to instances and save locally"
