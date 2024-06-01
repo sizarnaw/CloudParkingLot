@@ -1,7 +1,7 @@
 # debug
 # set -o xtrace
 
-KEY_NAME="cloud-parking-1lot-`date +'%N'`"
+KEY_NAME="cloud-parking-lot2-`date +'%N'`"
 KEY_PEM="$KEY_NAME.pem"
 
 echo "create key pair $KEY_PEM to connect to instances and save locally"
@@ -68,6 +68,8 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=10" ec2-use
         cd /home/ec2-user/CloudParkingLot
     fi
 
-    nohup flask run --host 0.0.0.0 &>/dev/null &
+    nohup flask run --host 0.0.0.0 --port 8000 &>/dev/null &
     exit
 EOF
+
+echo "This is the IP of the Current instance: $PUBLIC_IP"

@@ -1,3 +1,4 @@
+import math
 from flask import Flask, request, jsonify
 from datetime import datetime
 import random
@@ -9,10 +10,10 @@ parking_entries = []
 @app.route('/entry', methods=['POST'])
 def record_entry():
     plate = request.args.get('plate')
-    parking_lot = request.args.get('parkingLot')
+    spot = request.args.get('parkingLot')
     entry_time = datetime.now()
     ticket_id = random.randint(1000, 9999)
-    entry = {'ticketId': ticket_id, 'plate': plate, 'parkingLot': parking_lot, 'entryTime': entry_time}
+    entry = {'ticketId': ticket_id, 'plate': plate, 'parkingLot': spot, 'entryTime': entry_time}
     parking_entries.append(entry)
     
     return jsonify({'ticketId': ticket_id})
@@ -26,8 +27,9 @@ def record_exit():
         return jsonify({'error': 'Ticket not found'}), 404
 
     parked_time = exit_time - entry['entryTime']
-    parked_time_in_hours = parked_time.total_seconds() / 3600
-    charge = round(parked_time_in_hours * 10, 2)
+    parked_time_in_minutes = parked_time.total_seconds() / 60
+    increments = math.ceil(parked_time_in_minutes / 15)
+    charge = round(increments * 2.5, 2)
 
     return jsonify({
         'plate': entry['plate'],
