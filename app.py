@@ -12,7 +12,7 @@ def record_entry():
     plate = request.args.get('plate')
     spot = request.args.get('parkingLot')
     entry_time = datetime.now()
-    ticket_id = random.randint(1000, 9999)
+    ticket_id = random.randint(10, 99999)
     entry = {'ticketId': ticket_id, 'plate': plate, 'parkingLot': spot, 'entryTime': entry_time}
     parking_entries.append(entry)
     
