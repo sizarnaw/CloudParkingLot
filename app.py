@@ -6,6 +6,7 @@ import random
 app = Flask(__name__)
 
 parking_entries = []
+id_taken = []
 
 @app.route('/entry', methods=['POST'])
 def record_entry():
@@ -13,6 +14,8 @@ def record_entry():
     spot = request.args.get('parkingLot')
     entry_time = datetime.now()
     ticket_id = random.randint(10, 99999)
+    while ticket_id in id_taken:
+        ticket_id = random.randint(10, 99999)
     entry = {'ticketId': ticket_id, 'plate': plate, 'parkingLot': spot, 'entryTime': entry_time}
     parking_entries.append(entry)
     
