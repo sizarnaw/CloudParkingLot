@@ -13,7 +13,7 @@ def record_entry():
     plate = request.args.get('plate')
     spot = request.args.get('parkingLot')
     entry_time = datetime.now()
-    ticket_id = random.randint(1000, 99999)
+    ticket_id = random.randint(10, 99999)
     finished = False
     while not finished:
         if ticket_id not in parking_entries['ticketId']:
@@ -21,7 +21,7 @@ def record_entry():
             parking_entries.append(entry)
             finished = True
         else:
-            ticket_id = random.randint(1000, 99999)
+            ticket_id = random.randint(10, 99999)
 
     return jsonify({'ticketId': ticket_id})
 
